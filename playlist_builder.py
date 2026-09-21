@@ -59,11 +59,23 @@ MAX_DISCOVERY_PAGES = int(os.environ.get("MAX_DISCOVERY_PAGES", "200"))  # Cap p
 MAX_STREAMS_PER_RUN = int(os.environ.get("MAX_STREAMS_PER_RUN", "100"))
 
 MOVIERULZ_DOMAINS = [
-    "https://www.5movierulz.plumbing",
-    "https://www.5movierulz.watch",
+    "https://www.5movierulz.ventures",
     "https://www.5movierulz.cfd",
-    "https://www.5movierulz.green",
+    "https://www.5movierulz.watch",
     "https://www.5movierulz.lat",
+    "https://www.5movierulz.pe",
+    "https://www.5movierulz.vc",
+    "https://www.5movierulz.ms",
+    "https://www.5movierulz.plumbing",
+    "https://www.5movierulz.st",
+    "https://www.5movierulz.mx",
+    "https://www.5movierulz.ch",
+    "https://www.5movierulz.to",
+    "https://www.5movierulz.gd",
+    "https://www.5movierulz.green",
+    "https://www.4movierulz.tv",
+    "https://www.3movierulz.in",
+    "https://ww1.5movierulz.to",
 ]
 
 DEFAULT_CACHE_FILE = ".playlist_cache.json"
@@ -143,7 +155,8 @@ def discover_listing_pages(session, base_url, page_cache=None):
     last_discovered = page_cache.get("_last_discovered_page", 0)
     print(f"[scraper] Last discovered page: {last_discovered}")
 
-    for domain in MOVIERULZ_DOMAINS:
+    domain = base_url
+    for _ in [1]:
         resp = _get(session, domain)
         if not resp or resp.status_code != 200:
             continue
@@ -792,10 +805,22 @@ def run(output="playlist.m3u", append=False, cache_file=DEFAULT_CACHE_FILE):
     page_cache = load_page_cache(DEFAULT_PAGE_CACHE_FILE)
 
     # Step 1: Discover listing pages (uses cache to skip known pages)
-    listing_urls, page_cache = discover_listing_pages(session, MOVIERULZ_DOMAINS[0], page_cache)
-    if not listing_urls:
-        print("[error] No listing pages found -- is Movierulz reachable?")
+    all_listing_urls = []
+    for domain in MOVIERULZ_DOMAINS:
+        print(f"[scraper] Discovering listing pages from {domain}...")
+        try:
+            listing_urls, page_cache = discover_listing_pages(session, domain, page_cache)
+            if listing_urls:
+                all_listing_urls.extend(listing_urls)
+                print(f"[scraper] Found {len(listing_urls)} pages on {domain}")
+        except Exception as e:
+            print(f"[warn] Failed to discover pages on {domain}: {e}")
+
+    if not all_listing_urls:
+        print("[error] No listing pages found on any domain -- is Movierulz reachable?")
         sys.exit(1)
+        
+    listing_urls = list(set(all_listing_urls)) # optional deduplication
 
     # Step 2: Collect movie links (uses cache for instant page loads)
     movies, page_cache = extract_movie_links(session, listing_urls, page_cache)
