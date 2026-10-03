@@ -76,6 +76,7 @@ MOVIERULZ_DOMAINS = [
     "https://www.4movierulz.tv",
     "https://www.3movierulz.in",
     "https://ww1.5movierulz.to",
+    "https://www.5movierulz.forex",
 ]
 
 DEFAULT_CACHE_FILE = ".playlist_cache.json"
